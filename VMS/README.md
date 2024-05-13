@@ -1,3 +1,5 @@
+IMP - Please wait before testing this. Will update a few points in the code shortly and remove this notice.
+
 # VMS Django Project
 
 ## Project Overview
