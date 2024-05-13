@@ -89,7 +89,7 @@ Create a new vendor:
 curl -X POST http://localhost:8000/api/vendors/ -H 'Content-Type: application/json' -d '{"name": "New Vendor", "contact_details": "Contact Info", "address": "Vendor Address", "vendor_code": "V123"}'
 
 
-Replace http://localhost:8000/api/vendors/ with the actual URL of your API endpoint.
+Replace http://localhost:8000/ with the desired main domain
 
 Using `HTTPie`
 HTTPie is a user-friendly HTTP client that can be used from the terminal. Here's how you can test the same operations:
@@ -101,4 +101,4 @@ Create a new vendor:
 http POST http://localhost:8000/api/vendors/ name='New Vendor' contact_details='Contact Info' address='Vendor Address' vendor_code='V123'
 
 
-Again, replace http://localhost:8000/api/vendors/ with the actual URL of your API endpoint.
+Again, Replace http://localhost:8000/ with the desired main domain
