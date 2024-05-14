@@ -16,4 +16,9 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = '__all__'  # Adjust fields as needed
+        fields = '__all__'
+
+class HistoricalPerformanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistoricalPerformance
+        fields = '__all__'

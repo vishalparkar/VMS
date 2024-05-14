@@ -20,11 +20,24 @@ class PurchaseOrderViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDe
         # Override to set the owner of the purchase order to the authenticated user
         serializer.save(owner=self.request.user)
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given vendor,
+        by filtering against a `vendor_id` query parameter in the URL.
+        """
+        queryset = super().get_queryset()
+        vendor_id = self.request.query_params.get('vendor_id')
+        if vendor_id is not None:
+            queryset = queryset.filter(vendor_id=vendor_id)
+        return queryset
+
 class HistoricalPerformanceViewSet(generics.ListAPIView):
     queryset = HistoricalPerformance.objects.all()
     serializer_class = PurchaseOrderSerializer
     permission_classes = [IsAuthenticated]  # Require authentication for all operations
 
+    # Filter by vendor as there may be multiple historical performance records per vendor
+    filter_backends = [DjangoFilterBackend]  # Enable filtering based on vendor
     filterset_fields = ['vendor']
     ordering_fields = ['date']
     ordering = ['-date']

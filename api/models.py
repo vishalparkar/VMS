@@ -1,14 +1,7 @@
 from django.db import models
+from django.db.models import Avg, Count, F, ExpressionWrapper, fields
 from django.utils import timezone
-from django.contrib.auth.models import User
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=255, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-    
-    def __str__(self):
-        return self.user.username
+from django.utils.timezone import now
 
 class Vendor(models.Model):
     """
@@ -27,6 +20,15 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def update_performance_metrics(self):
+        completed_orders = self.purchase_orders.filter(status='completed')
+        self.on_time_delivery_rate = completed_orders.filter(delivery_date__lte=F('order_date')).count() / completed_orders.count() * 100
+        self.quality_rating_avg = completed_orders.aggregate(average=Avg('quality_rating'))['average']
+        response_times = completed_orders.annotate(response_time=ExpressionWrapper(F('acknowledgment_date') - F('issue_date'), output_field=fields.DurationField())).aggregate(average=Avg('response_time'))
+        self.average_response_time = response_times['average'].total_seconds() / 3600  # Convert to hours
+        self.fulfillment_rate = completed_orders.filter(quality_rating__gte=3).count() / completed_orders.count() * 100
+        self.save()
 
 class PurchaseOrder(models.Model):
     """
@@ -50,6 +52,11 @@ class PurchaseOrder(models.Model):
 
     def __str__(self):
         return f"PO #{self.po_number} - {self.vendor.name}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.status == 'completed':
+            self.vendor.update_performance_metrics()
 
 class HistoricalPerformance(models.Model):
     """
